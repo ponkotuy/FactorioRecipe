@@ -1,4 +1,4 @@
-package com.ponkotuy.parsers
+package parsers
 import org.luaj.vm2.LuaTable
 
 import scala.util.Try

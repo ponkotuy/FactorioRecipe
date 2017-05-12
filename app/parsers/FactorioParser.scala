@@ -1,4 +1,4 @@
-package com.ponkotuy.parsers
+package parsers
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}

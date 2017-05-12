@@ -1,7 +1,7 @@
-package com.ponkotuy.parsers
+package parsers
 
-import com.ponkotuy.parsers.Recipe.{Ingredients, Results}
 import org.luaj.vm2.LuaTable
+import parsers.Recipe.{Ingredients, Results}
 
 import scala.util.Try
 import scala.collection.breakOut
