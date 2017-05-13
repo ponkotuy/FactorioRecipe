@@ -3,18 +3,31 @@ package controllers
 import javax.inject.Inject
 
 import com.github.tototoshi.play2.json4s.native.Json4s
-import org.json4s.{DefaultFormats, Extraction}
-import parsers.{ItemParser, RecipeParser}
+import models.PersistRecipe
+import org.json4s.DefaultFormats
+import parsers.RecipeParser
 import play.api.mvc.{Action, Controller}
+import scalikejdbc.DB
 
 class MainController @Inject()(json4s: Json4s) extends Controller {
-  import json4s._
+  import Responses._
 
   implicit val formats = DefaultFormats
 
-  def index() = Action {
-    val items = ItemParser.parse("prototypes/item/item.lua")
-    val recipes = RecipeParser.parse("prototypes/recipe/recipe.lua")
-    Ok(Extraction.decompose(recipes))
+  def index() = Action(success)
+
+  def loadRecipe() = Action {
+    val version = "0.15.10"
+    val files =
+      Seq("recipe", "ammo", "capsule", "equipment", "fluid-recipe", "furnace-recipe", "inserter", "module", "turret")
+
+    files.foreach{ file =>
+      val recipes = RecipeParser.parse(s"prototypes/recipe/${file}.lua")
+      val persist = new PersistRecipe(version)
+      DB localTx { implicit session =>
+        recipes.foreach(persist.apply)
+      }
+    }
+    success
   }
 }

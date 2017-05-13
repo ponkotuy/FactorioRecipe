@@ -1,1 +1,6 @@
 GET / controllers.MainController.index()
+GET /load_recipe controllers.MainController.loadRecipe()
+
+GET /recipe/:itemId controllers.RecipeController.fromResult(itemId: Long)
+
+GET /items controllers.ItemController.list()
