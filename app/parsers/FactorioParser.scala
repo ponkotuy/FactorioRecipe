@@ -1,7 +1,7 @@
 package parsers
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path, Paths}
 import javax.script.ScriptEngineManager
 
 import org.luaj.vm2.{LuaTable, LuaValue}
@@ -11,22 +11,27 @@ import scala.collection.breakOut
 trait FactorioParser[T] {
   import FactorioParser._
 
-  def parse(path: String): Seq[T] = {
-    val lua = readAll("data.lua") + readAll(path)
+  def parse(path: String): Seq[T] = commonParse(readAll(path))
+  def parse(path: Path): Seq[T] = commonParse(readAll(path))
+
+  def transport(table: LuaTable): Option[T]
+
+  private[this] def commonParse(target: String): Seq[T] = {
+    val lua = readAll("data.lua") + target
     val engine = manager.getEngineByName("luaj")
     engine.eval(lua)
     val array: LuaTable = engine.get("array").asInstanceOf[LuaTable]
     tableToSeq(array)(_.checktable()).flatMap(transport)
   }
-
-  def transport(table: LuaTable): Option[T]
 }
 
 object FactorioParser {
   private val manager = new ScriptEngineManager()
 
-  def readAll(path: String): String =
-    new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8)
+  def readAll(path: String): String = readAll(Paths.get(path))
+
+  def readAll(path: Path): String =
+    new String(Files.readAllBytes(path), StandardCharsets.UTF_8)
 
   def tableToSeq[T](table: LuaTable)(f: LuaValue => T): Seq[T] = {
     table.keys().map(table.get).map(f)(breakOut)
@@ -37,4 +42,6 @@ object FactorioParser {
       f(key) -> g(table.get(key))
     }(breakOut)
   }
+
+
 }

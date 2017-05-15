@@ -17,31 +17,47 @@ case class Recipe(
     category: Option[String],
     ingredients: Ingredients,
     results: Results
-) {
-  def simpleString: String = {
-    val list = s"${results} <-" ::
-        (ingredients.map { case ItemAmount(item, amount) =>
-          s"  ${item}: ${amount}"
-        }(breakOut): List[String])
-    list.mkString("\n")
-  }
-}
+)
 
 object Recipe {
-  import FactorioParser.tableToSeq
   type Ingredients = Seq[ItemAmount]
   type Results = Seq[ItemAmount]
 
   def fromTable(table: LuaTable): Option[Recipe] = Try {
+    val t = if(table.keys().exists(_.checkjstring() == "normal")) table.get("normal").checktable() else table
+    val Items(ingredients, results) = Items.fromTable(t)
     Recipe(
       table.get("type").checkjstring(),
       table.get("name").checkjstring(),
       Try { table.get("energy_required").checkdouble() }.getOrElse(0.5),
       Try { table.get("category").checkjstring() }.toOption,
-      ingredientsParser(table.get("ingredients").checktable()),
-      resultsParser(table)
+      ingredients,
+      results
     )
   }.toOption
+}
+
+case class ItemAmount(name: String, amount: Int)
+
+object ItemAmount {
+  def fromTable(table: LuaTable): Option[ItemAmount] = Try {
+    ItemAmount(
+      Try { table.get("name").checkjstring() }.getOrElse(table.get(1).checkjstring()),
+      Try { table.get("amount").checkint() }.getOrElse(table.get(2).checkint())
+    )
+  }.toOption
+}
+
+case class Items(ingredients: Ingredients, results: Results)
+
+object Items {
+  import FactorioParser.tableToSeq
+
+  def fromTable(table: LuaTable): Items = {
+    val ingredients = ingredientsParser(table.get("ingredients").checktable())
+    val results = resultsParser(table)
+    Items(ingredients, results)
+  }
 
   def ingredientsParser(table: LuaTable): Ingredients = {
     val tables = tableToSeq(table)(_.checktable())
@@ -59,15 +75,4 @@ object Recipe {
       tables.flatMap(ItemAmount.fromTable)
     }
   }
-}
-
-case class ItemAmount(name: String, amount: Int)
-
-object ItemAmount {
-  def fromTable(table: LuaTable): Option[ItemAmount] = Try {
-    ItemAmount(
-      Try { table.get("name").checkjstring() }.getOrElse(table.get(1).checkjstring()),
-      Try { table.get("amount").checkint() }.getOrElse(table.get(2).checkint())
-    )
-  }.toOption
 }
