@@ -1,8 +1,8 @@
 package models
 
 object Aliases {
-  val i = Item.defaultAlias
-  val r = Recipe.defaultAlias
-  val in = Ingredient.defaultAlias
-  val re = Result.defaultAlias
+  def i = Item.defaultAlias
+  def r = Recipe.defaultAlias
+  def in = Ingredient.defaultAlias
+  def re = Result.defaultAlias
 }

@@ -9,11 +9,13 @@ case class Recipe(
     time: Double,
     category: Option[String],
     version: String,
-    ingredients: Seq[Item] = Nil,
-    results: Seq[Item] = Nil
+    ingredients: Seq[Ingredient] = Nil,
+    results: Seq[Result] = Nil
 )
 
 object Recipe extends SkinnyCRUDMapperWithId[Long, Recipe] {
+  import Aliases.{re, in}
+
   override val defaultAlias: Alias[Recipe] = createAlias("r")
 
   override def idToRawValue(id: Long): Any = id
@@ -22,20 +24,21 @@ object Recipe extends SkinnyCRUDMapperWithId[Long, Recipe] {
   override def extract(rs: WrappedResultSet, n: ResultName[Recipe]): Recipe =
     autoConstruct(rs, n, "ingredients", "results")
 
-  hasManyThrough[Ingredient, Item](
-    through = Ingredient -> Ingredient.createAlias("ing"),
-    many = Item -> Item.createAlias("i2"),
-    merge = (r, items) => r.copy(ingredients = items),
-    throughOn = (r, in) => sqls.eq(r.id, in.recipeId),
-    on = (in, i) => sqls.eq(in.itemId, i.id)
+  hasMany[Ingredient](
+    many = Ingredient -> in,
+    merge = (r, ings) => r.copy(ingredients = ings),
+    on = (r, in) => sqls.eq(r.id, in.recipeId)
   ).byDefault
 
-  hasManyThrough[Item](
-    through = Result,
-    many = Item,
-    merge = (r, items) => r.copy(results = items)
+  hasMany[Result](
+    many = Result -> re,
+    merge = (r, results) => r.copy(results = results),
+    on = (r, res) => sqls.eq(r.id, res.recipeId)
   ).byDefault
 
   def create(r: Recipe)(implicit session: DBSession): Long =
     createWithAttributes('name -> r.name, 'time -> r.time, 'category -> r.category, 'version -> r.version)
+
+  def findAllByResult(resultItemId: Long)(implicit session: DBSession): Seq[Recipe] =
+    Recipe.findAllBy(sqls.eq(re.itemId, resultItemId))
 }
