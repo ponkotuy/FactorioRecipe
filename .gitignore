@@ -151,7 +151,7 @@ typings/
 
 # dotenv environment variables file
 .env
-
+.env_web
 
 # End of https://www.gitignore.io/api/node,coffeescript
 
