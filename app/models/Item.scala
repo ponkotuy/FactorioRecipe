@@ -16,4 +16,7 @@ object Item extends SkinnyCRUDMapperWithId[Long, Item] {
   def create(name: String)(implicit session: DBSession): Long =
     createWithAttributes('name -> name)
   def create(i: Item)(implicit session: DBSession): Long = create(i.name)
+
+  def name(id: Long)(implicit session: DBSession = AutoSession): String =
+    findById(id).map(_.name).get
 }

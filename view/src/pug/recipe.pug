@@ -6,16 +6,17 @@ html(lang=ja)
     script(src='/js/recipe.js')
   body
     .container(role=main)
+      h1#item {{ item.name }}
       table#recipe.table.table-condensed.table-striped
         thead
           tr
             th ID
             th 名前
-            th 必要設備数
+            th 必要時間
             th 必要数
         tbody
-          tr(v-for='item in items')
+          tr(v-for='item in items', :class='{"info": item.id == itemId}')
             td {{ item.id }}
             td {{ item.name }}
-            td {{ 0 }}
+            td {{ item.amount * item.time }}
             td {{ item.amount }}

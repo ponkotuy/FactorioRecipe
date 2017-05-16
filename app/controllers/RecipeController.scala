@@ -3,7 +3,7 @@ package controllers
 import javax.inject.Inject
 
 import com.github.tototoshi.play2.json4s.native.Json4s
-import models.{Ingredient, Recipe, Result}
+import models.{Ingredient, Item, Recipe, Result}
 import org.json4s.{DefaultFormats, Extraction}
 import play.api.mvc.{Action, Controller}
 import scalikejdbc._
@@ -28,27 +28,32 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
   }
 
   private def fromResultRecursive(material: Material): Seq[Material] = {
-    val itemId = material.itemId
+    val itemId = material.id
     val recipe = Recipe.findAllByResult(itemId)(AutoSession).find(_.results.size == 1)
-    material :: recipe.fold(Nil: List[Material]) { reci =>
+    recipe.fold(material :: Nil) { reci =>
       val resultCount = reci.results.find(_.itemId == itemId).map(_.amount).getOrElse(1)
-      reci.ingredients.flatMap { ing =>
-        val next = Material(ing.itemId, material.amount * ing.amount / resultCount)
-        fromResultRecursive(next)
-      }.toList
+      material.copy(time = reci.time / resultCount * 2) ::
+          reci.ingredients.flatMap { ing =>
+            val next = Material(ing.itemId, material.amount * ing.amount / resultCount)
+            fromResultRecursive(next)
+          }.toList
     }
   }
 
   private def joinMaterials(materials: Seq[Material]): Seq[Material] = {
-    materials.sortBy(-_.itemId).foldLeft[List[Material]](Nil) { (xs, mat) =>
+    materials.sortBy(-_.id).foldLeft[List[Material]](Nil) { (xs, mat) =>
       xs.headOption.fold(mat :: Nil) { head =>
-        if(head.itemId == mat.itemId)
+        if(head.id == mat.id)
           mat.copy(amount = head.amount + mat.amount) :: xs.tail
         else
           mat :: xs
       }
     }
   }
+}
 
-  case class Material(itemId: Long, amount: Double)
+case class Material(id: Long, name: String, amount: Double, time: Double = 0)
+
+object Material {
+  def apply(itemId: Long, amount: Double) = new Material(itemId, Item.name(itemId), amount)
 }

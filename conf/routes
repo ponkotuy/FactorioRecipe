@@ -1,9 +1,11 @@
-GET / controllers.MainController.index()
+
+GET / controllers.Assets.at(path="/public", file = "index.html")
 GET /api/load_recipe controllers.MainController.loadRecipe()
 
 GET /api/recipe/:itemId controllers.RecipeController.fromResult(itemId: Long)
 DELETE /api/recipes/:version controllers.RecipeController.deleteVersion(version: String)
 
+GET /api/item/:itemId controllers.ItemController.show(itemId: Long)
 GET /api/items controllers.ItemController.list()
 
 GET /*file controllers.MyAssets.at(path="/public", file)
