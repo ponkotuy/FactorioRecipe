@@ -7,7 +7,7 @@ class PersistRecipe(version: String) {
     val record = new models.Recipe(
       0L,
       recipe.name,
-      recipe.energyRqeuired,
+      recipe.energyRequired,
       recipe.category,
       version
     )

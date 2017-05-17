@@ -6,6 +6,7 @@ import com.github.tototoshi.play2.json4s.native.Json4s
 import models.{Ingredient, Item, Recipe, Result}
 import org.json4s.{DefaultFormats, Extraction}
 import play.api.mvc.{Action, Controller}
+import requests.SearchRecipeForm
 import scalikejdbc._
 
 class RecipeController @Inject()(json4s: Json4s) extends Controller {
@@ -13,9 +14,11 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
   import json4s._
   implicit val formats = DefaultFormats
 
-  def fromResult(itemId: Long) = Action {
-    val result = fromResultRecursive(Material(itemId, 1.0))
-    Ok(Extraction.decompose(joinMaterials(result)))
+  def fromResult(itemId: Long) = Action { implicit req =>
+    SearchRecipeForm.form.bindFromRequest().fold(
+      badRequest(_),
+      form => Ok(Extraction.decompose(search(itemId, form)))
+    )
   }
 
   def deleteVersion(version: String) = Action {
@@ -25,6 +28,20 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
     Ingredient.deleteBy(sqls.in(Ingredient.column.recipeId, recipeIds))
     Recipe.deleteBy(sqls.in(Recipe.column.id, recipeIds))
     success
+  }
+
+  private def search(itemId: Long, form: SearchRecipeForm) = {
+    val rawMaterials = fromResultRecursive(Material(itemId, 1.0))
+    var materials = joinMaterials(rawMaterials)
+    form.elems.foreach { elem =>
+      materials.find(_.id == elem).foreach { mat =>
+        val exclude = fromResultRecursive(mat)
+        materials = materials.map { m =>
+          m.copy(exclude = exclude.find(_.id == m.id).map(_.amount).getOrElse(0.0))
+        }
+      }
+    }
+    materials
   }
 
   private def fromResultRecursive(material: Material): Seq[Material] = {
@@ -52,7 +69,7 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
   }
 }
 
-case class Material(id: Long, name: String, amount: Double, time: Double = 0)
+case class Material(id: Long, name: String, amount: Double, time: Double = 0, exclude: Double = 0)
 
 object Material {
   def apply(itemId: Long, amount: Double) = new Material(itemId, Item.name(itemId), amount)

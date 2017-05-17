@@ -13,7 +13,7 @@ object RecipeParser extends FactorioParser[Recipe] {
 case class Recipe(
     typ: String,
     name: String,
-    energyRqeuired: Double,
+    energyRequired: Double,
     category: Option[String],
     ingredients: Ingredients,
     results: Results
@@ -25,11 +25,11 @@ object Recipe {
 
   def fromTable(table: LuaTable): Option[Recipe] = Try {
     val t = if(table.keys().exists(_.checkjstring() == "normal")) table.get("normal").checktable() else table
-    val Items(ingredients, results) = Items.fromTable(t)
+    val Items(ingredients, results, time) = Items.fromTable(t)
     Recipe(
       table.get("type").checkjstring(),
       table.get("name").checkjstring(),
-      Try { table.get("energy_required").checkdouble() }.getOrElse(0.5),
+      time,
       Try { table.get("category").checkjstring() }.toOption,
       ingredients,
       results
@@ -48,7 +48,7 @@ object ItemAmount {
   }.toOption
 }
 
-case class Items(ingredients: Ingredients, results: Results)
+case class Items(ingredients: Ingredients, results: Results, energyRequired: Double)
 
 object Items {
   import FactorioParser.tableToSeq
@@ -56,7 +56,8 @@ object Items {
   def fromTable(table: LuaTable): Items = {
     val ingredients = ingredientsParser(table.get("ingredients").checktable())
     val results = resultsParser(table)
-    Items(ingredients, results)
+    val time = Try { table.get("energy_required").checkdouble() }.getOrElse(0.5)
+    Items(ingredients, results, time)
   }
 
   def ingredientsParser(table: LuaTable): Ingredients = {
