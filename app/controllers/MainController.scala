@@ -26,7 +26,6 @@ class MainController @Inject()(json4s: Json4s) extends Controller {
 
     files.iterator().asScala.foreach{ file =>
       val recipes = RecipeParser.parse(file)
-      println(file, recipes.size)
       val persist = new PersistRecipe(version)
       DB localTx { implicit session =>
         recipes.foreach(persist.apply)

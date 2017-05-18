@@ -14,7 +14,7 @@ case class Recipe(
 )
 
 object Recipe extends SkinnyCRUDMapperWithId[Long, Recipe] {
-  import Aliases.{re, in}
+  import Aliases.{re, in, r}
 
   override val defaultAlias: Alias[Recipe] = createAlias("r")
 
@@ -41,4 +41,8 @@ object Recipe extends SkinnyCRUDMapperWithId[Long, Recipe] {
 
   def findAllByResult(resultItemId: Long)(implicit session: DBSession): Seq[Recipe] =
     Recipe.findAllBy(sqls.eq(re.itemId, resultItemId))
+
+  def findVersions()(implicit session: DBSession): Seq[String] = withSQL {
+    select(sqls.distinct(r.version)).from(Recipe as r)
+  }.map(_.string(1)).collection.apply()
 }

@@ -1,13 +1,17 @@
 package controllers
 
+import java.util.zip.ZipFile
 import javax.inject.Inject
 
 import com.github.tototoshi.play2.json4s.native.Json4s
-import models.{Ingredient, Item, Recipe, Result}
+import models._
 import org.json4s.{DefaultFormats, Extraction}
+import parsers.RecipeParser
 import play.api.mvc.{Action, Controller}
-import requests.SearchRecipeForm
+import requests.{SearchRecipeForm, UploadZipRecipeForm}
 import scalikejdbc._
+
+import scala.collection.JavaConverters._
 
 class RecipeController @Inject()(json4s: Json4s) extends Controller {
   import Responses._
@@ -19,6 +23,25 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
       badRequest(_),
       form => Ok(Extraction.decompose(search(itemId, form)))
     )
+  }
+
+  def versions() = Action {
+    val versions = Recipe.findVersions()(AutoSession)
+    Ok(Extraction.decompose(versions))
+  }
+
+  def upload() = Action(parse.multipartFormData) { req =>
+    UploadZipRecipeForm.fromReq(req).fold(BadRequest("Form error")) { form =>
+      val zip = new ZipFile(form.file.ref.file)
+      zip.entries().asScala.filterNot(_.isDirectory).foreach { file =>
+        val recipes = RecipeParser.parse(zip.getInputStream(file))
+        val persist = new PersistRecipe(req.version)
+        DB localTx { implicit session =>
+          recipes.foreach(persist.apply)
+        }
+      }
+      success
+    }
   }
 
   def deleteVersion(version: String) = Action {

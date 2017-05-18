@@ -2,7 +2,9 @@
 GET / controllers.Assets.at(path="/public", file = "index.html")
 GET /api/load_recipe controllers.MainController.loadRecipe()
 
+GET /api/recipes/versions controllers.RecipeController.versions()
 GET /api/recipe/:itemId controllers.RecipeController.fromResult(itemId: Long)
+POST /api/recipes controllers.RecipeController.upload()
 DELETE /api/recipes/:version controllers.RecipeController.deleteVersion(version: String)
 
 GET /api/item/:itemId controllers.ItemController.show(itemId: Long)

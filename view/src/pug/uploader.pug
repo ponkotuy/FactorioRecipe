@@ -1,0 +1,32 @@
+doctype html
+html(lang=ja)
+  head
+    include template/_header
+    title FactorioRecipe uploader
+    script(src='/js/uploader.js')
+  body
+    include template/_navbar
+    .container(role=main)
+      h3 Uploader
+      form(method='post', action='/api/recipes')
+        .form-group
+          label(for='version') Version
+          input#version.form-control(type='text', name='version', placeholder='Example: 0.15.10')
+        .form-group
+          label(for='password') Password
+          input#password.form-control(type='password', name='password')
+        .form-group
+          label(for='zipFile') Zip File(with `Steam/steamapps/common/Factorio/data/base/prototypes/recipe` dir)
+          div
+            input.form-control(type='text', readonly='', placeholder='Browse...')
+            input#zipFile(type='file', name='zipFile')
+        button.btn.btn-default(type='submit') Submit
+
+      h3 Delete Version
+      form#versions.form-horizontal
+        .form-group(v-for='version in versions')
+          label.col-sm-3 {{ version }}
+          .col-sm-7
+            input.form-control(type='password', placeholder='password', v-model='password')
+          .col-sm-2
+            button.btn.btn-danger.form-control(type='button', @click='deleteRecipe(version)') Delete

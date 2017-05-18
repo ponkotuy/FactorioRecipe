@@ -1,9 +1,12 @@
 package parsers
 
+import java.io.{InputStream, InputStreamReader}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 import javax.script.ScriptEngineManager
 
+import com.google.common.base.Charsets
+import com.google.common.io.CharStreams
 import org.luaj.vm2.{LuaTable, LuaValue}
 
 import scala.collection.breakOut
@@ -13,6 +16,10 @@ trait FactorioParser[T] {
 
   def parse(path: String): Seq[T] = commonParse(readAll(path))
   def parse(path: Path): Seq[T] = commonParse(readAll(path))
+  def parse(is: InputStream): Seq[T] = {
+    val str = CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8))
+    commonParse(str)
+  }
 
   def transport(table: LuaTable): Option[T]
 
