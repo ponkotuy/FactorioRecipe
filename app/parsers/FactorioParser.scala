@@ -10,6 +10,7 @@ import com.google.common.io.CharStreams
 import org.luaj.vm2.{LuaTable, LuaValue}
 
 import scala.collection.breakOut
+import scala.io.Source
 
 trait FactorioParser[T] {
   import FactorioParser._
@@ -24,7 +25,8 @@ trait FactorioParser[T] {
   def transport(table: LuaTable): Option[T]
 
   private[this] def commonParse(target: String): Seq[T] = {
-    val lua = readAll("data.lua") + target
+    val dataLua = Source.fromURL(getClass.getResource("/data.lua")).mkString
+    val lua = dataLua + target
     val engine = manager.getEngineByName("luaj")
     engine.eval(lua)
     val array: LuaTable = engine.get("array").asInstanceOf[LuaTable]
