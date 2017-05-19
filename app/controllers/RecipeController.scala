@@ -30,24 +30,24 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
     Ok(Extraction.decompose(versions))
   }
 
-  def upload() = Action(parse.multipartFormData) { req =>
+  def upload() = Action(parse.multipartFormData) { implicit req =>
     UploadZipRecipeForm.fromReq(req).fold(BadRequest("Form error")) { form =>
       val zip = new ZipFile(form.file.ref.file)
       zip.entries().asScala.filterNot(_.isDirectory).foreach { file =>
         val recipes = RecipeParser.parse(zip.getInputStream(file))
-        val persist = new PersistRecipe(req.version)
+        val persist = new PersistRecipe(form.version)
         DB localTx { implicit session =>
           Password.create(form.passwordRecord)
           recipes.foreach(persist.apply)
         }
       }
-      success
+      Redirect(routes.MyAssets.at("uploader.html"))
     }
   }
 
-  def deleteVersion(version: String) = Action { implicit req =>
+  def deleteVersion(version: String) = Action(parse.multipartFormData) { implicit req =>
     import models.Aliases.r
-    val password = DeleteForm.from.bindFromRequest().bindFromRequest().fold(_ => "", identity)
+    val password = DeleteForm.from.bindFromRequest().fold(_ => "", _.passwrod)
     if(!deleteAuth(version, password)) Forbidden("Wrong password")
     else {
       val recipeIds = Recipe.findAllBy(sqls.eq(r.version, version)).map(_.id)

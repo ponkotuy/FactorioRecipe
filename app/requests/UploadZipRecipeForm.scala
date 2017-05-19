@@ -19,7 +19,7 @@ object UploadZipRecipeForm {
   def fromReq(req: Request[MultipartFormData[Files.TemporaryFile]]): Option[UploadZipRecipeForm] = {
     val data = req.body.dataParts
     for {
-      version <- data.get("version").flatMap(_.headOption)
+      version <- data.get("ver").flatMap(_.headOption)
       password <- data.get("password").flatMap(_.headOption)
       file <- req.body.file("zipFile")
     } yield new UploadZipRecipeForm(version, password, file)

@@ -8,10 +8,10 @@ html(lang=ja)
     include template/_navbar
     .container(role=main)
       h3 Uploader
-      form(method='post', action='/api/recipes')
+      form(method='post', action='/api/recipes', enctype='multipart/form-data')
         .form-group
           label(for='version') Version
-          input#version.form-control(type='text', name='version', placeholder='Example: 0.15.10')
+          input#version.form-control(type='text', name='ver', placeholder='Example: 0.15.10')
         .form-group
           label(for='password') Password
           input#password.form-control(type='password', name='password')
@@ -23,10 +23,16 @@ html(lang=ja)
         button.btn.btn-default(type='submit') Submit
 
       h3 Delete Version
-      form#versions.form-horizontal
-        .form-group(v-for='version in versions')
-          label.col-sm-3 {{ version }}
-          .col-sm-7
-            input.form-control(type='password', placeholder='password', v-model='password')
-          .col-sm-2
-            button.btn.btn-danger.form-control(type='button', @click='deleteRecipe(version)') Delete
+      #versions
+        .alert.alert-danger(role='alert', v-if='alert', v-text='alert')
+          button.close(type='button', data-dismiss='alert' aria-label='Close')
+            span(aria-hidden='true') &times;
+        form(@submit.prevent, @submit='deleteRecipe()')
+          .form-group
+            label(for='deleteVersion') Version
+            select#deleteVersion.form-control(v-model='ver')
+              option(v-for='version in versions') {{ version }}
+          .form-group
+              label(for='deletePassword') Delete Password
+              input#deletePassword.form-control(type='password', placeholder='password', v-model='password')
+          button.btn.btn-danger(type='submit') Delete

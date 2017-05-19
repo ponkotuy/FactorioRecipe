@@ -7,6 +7,7 @@ case class Password(id: Long, version: String, password: String)
 
 object Password extends SkinnyCRUDMapperWithId[Long, Password] {
   override val defaultAlias: Alias[Password] = createAlias("p")
+  override val tableName = "passwords"
 
   override def idToRawValue(id: Long): Any = id
   override def rawValueToId(value: Any): Long = value.toString.toLong

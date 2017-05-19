@@ -8,8 +8,16 @@ render = (json) ->
     el: '#versions'
     data:
       versions: json
+      ver: json[0]
       password: ''
+      alert: null
     methods:
-      deleteRecipe: (version) ->
-        fetch("/api/recipes/#{version}", {method: 'delete'}).then (res) ->
-          location.reload(false)
+      deleteRecipe:  ->
+        form = new FormData
+        form.append('password', @password)
+        fetch("/api/recipes/#{@ver}", {method: 'delete', body: form}).then (res) =>
+          if res.status == 200
+            location.reload(false)
+          else
+            res.text().then (text) =>
+              @alert = text
