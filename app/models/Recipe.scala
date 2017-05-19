@@ -39,8 +39,8 @@ object Recipe extends SkinnyCRUDMapperWithId[Long, Recipe] {
   def create(r: Recipe)(implicit session: DBSession): Long =
     createWithAttributes('name -> r.name, 'time -> r.time, 'category -> r.category, 'version -> r.version)
 
-  def findAllByResult(resultItemId: Long)(implicit session: DBSession): Seq[Recipe] =
-    Recipe.findAllBy(sqls.eq(re.itemId, resultItemId))
+  def findAllByResult(version: String, resultItemId: Long)(implicit session: DBSession): Seq[Recipe] =
+    Recipe.findAllBy(sqls.eq(re.itemId, resultItemId).and.eq(r.version, version))
 
   def findVersions()(implicit session: DBSession): Seq[String] = withSQL {
     select(sqls.distinct(r.version)).from(Recipe as r)

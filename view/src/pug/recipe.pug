@@ -9,6 +9,11 @@ html(lang=ja)
     .container(role=main)
       h1#item {{ item.name }}
       #recipe
+        form.form-inline
+          .form-group
+            label(for='version') Version
+            select#version.form-control(v-model='version')
+              option(v-for='version in versions') {{ version }}
         table.table.table-condensed.table-striped
           thead
             tr

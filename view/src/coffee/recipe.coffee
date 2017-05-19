@@ -1,24 +1,28 @@
 $(document).ready ->
   params = urlParameter()
-  render(params.id)
+  fetch('/api/recipes/versions').then (res) ->
+    res.json().then (json) ->
+      render(params.id, json)
   fetch("/api/item/#{params.id}").then (res) ->
     res.json().then (json) ->
       renderItem(json)
 
-render = (itemId) ->
+render = (itemId, versions) ->
   new Vue
     el:  '#recipe'
     data:
       items: []
       elems: []
       itemId: itemId
+      version: versions[0]
+      versions: versions
     methods:
       getJson: ->
         directs = _.concat(@items, @elems)
           .filter (x) -> x.direct
           .map (x) -> x.id
         param = queryRing(directs)
-        fetch("/api/recipe/#{itemId}#{param}").then (res) =>
+        fetch("/api/recipe/#{@version}/#{@itemId}#{param}").then (res) =>
           res.json().then (json) =>
             json = json.map (x) ->
               x.direct = _.includes(directs, x.id)
@@ -32,6 +36,7 @@ render = (itemId) ->
         @getJson()
     mounted: ->
       @getJson()
+
 
 
 renderItem = (json) ->

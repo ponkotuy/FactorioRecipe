@@ -18,15 +18,15 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
   import json4s._
   implicit val formats = DefaultFormats
 
-  def fromResult(itemId: Long) = Action { implicit req =>
+  def fromResult(version: String, itemId: Long) = Action { implicit req =>
     SearchRecipeForm.form.bindFromRequest().fold(
       badRequest(_),
-      form => Ok(Extraction.decompose(search(itemId, form)))
+      form => Ok(Extraction.decompose(search(version, itemId, form)))
     )
   }
 
   def versions() = Action {
-    val versions = Recipe.findVersions()(AutoSession)
+    val versions = Recipe.findVersions()(AutoSession).sorted.reverse
     Ok(Extraction.decompose(versions))
   }
 
@@ -65,12 +65,12 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
     }
   }
 
-  private def search(itemId: Long, form: SearchRecipeForm) = {
-    val rawMaterials = fromResultRecursive(Material(itemId, 1.0))
+  private def search(version: String, itemId: Long, form: SearchRecipeForm) = {
+    val rawMaterials = fromResultRecursive(version, Material(itemId, 1.0))
     var materials = joinMaterials(rawMaterials)
     form.elems.foreach { elem =>
       materials.find(_.id == elem).foreach { mat =>
-        val exclude = fromResultRecursive(mat)
+        val exclude = fromResultRecursive(version, mat)
         materials = materials.map { m =>
           m.copy(exclude = exclude.find(_.id == m.id).map(_.amount).getOrElse(0.0))
         }
@@ -79,15 +79,15 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
     materials
   }
 
-  private def fromResultRecursive(material: Material): Seq[Material] = {
+  private def fromResultRecursive(version: String, material: Material): Seq[Material] = {
     val itemId = material.id
-    val recipe = Recipe.findAllByResult(itemId)(AutoSession).find(_.results.size == 1)
+    val recipe = Recipe.findAllByResult(version, itemId)(AutoSession).find(_.results.size == 1)
     recipe.fold(material :: Nil) { reci =>
       val resultCount = reci.results.find(_.itemId == itemId).map(_.amount).getOrElse(1)
       material.copy(time = reci.time / resultCount * 2) ::
           reci.ingredients.flatMap { ing =>
             val next = Material(ing.itemId, material.amount * ing.amount / resultCount)
-            fromResultRecursive(next)
+            fromResultRecursive(version, next)
           }.toList
     }
   }
