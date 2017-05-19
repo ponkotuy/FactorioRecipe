@@ -8,7 +8,7 @@ import models._
 import org.json4s.{DefaultFormats, Extraction}
 import parsers.RecipeParser
 import play.api.mvc.{Action, Controller}
-import requests.{SearchRecipeForm, UploadZipRecipeForm}
+import requests.{DeleteForm, MyBCrypt, SearchRecipeForm, UploadZipRecipeForm}
 import scalikejdbc._
 
 import scala.collection.JavaConverters._
@@ -37,6 +37,7 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
         val recipes = RecipeParser.parse(zip.getInputStream(file))
         val persist = new PersistRecipe(req.version)
         DB localTx { implicit session =>
+          Password.create(form.passwordRecord)
           recipes.foreach(persist.apply)
         }
       }
@@ -44,13 +45,24 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
     }
   }
 
-  def deleteVersion(version: String) = Action {
+  def deleteVersion(version: String) = Action { implicit req =>
     import models.Aliases.r
-    val recipeIds = Recipe.findAllBy(sqls.eq(r.version, version)).map(_.id)
-    Result.deleteBy(sqls.in(Result.column.recipeId, recipeIds))
-    Ingredient.deleteBy(sqls.in(Ingredient.column.recipeId, recipeIds))
-    Recipe.deleteBy(sqls.in(Recipe.column.id, recipeIds))
-    success
+    val password = DeleteForm.from.bindFromRequest().bindFromRequest().fold(_ => "", identity)
+    if(!deleteAuth(version, password)) Forbidden("Wrong password")
+    else {
+      val recipeIds = Recipe.findAllBy(sqls.eq(r.version, version)).map(_.id)
+      Result.deleteBy(sqls.in(Result.column.recipeId, recipeIds))
+      Ingredient.deleteBy(sqls.in(Ingredient.column.recipeId, recipeIds))
+      Recipe.deleteBy(sqls.in(Recipe.column.id, recipeIds))
+      success
+    }
+  }
+
+  private def deleteAuth(version: String, password: String): Boolean = {
+    import Aliases.p
+    Password.findBy(sqls.eq(p.version, version)).fold(false) { p =>
+      MyBCrypt.authenticate(password, p.password)
+    }
   }
 
   private def search(itemId: Long, form: SearchRecipeForm) = {
