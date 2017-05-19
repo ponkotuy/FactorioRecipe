@@ -14,7 +14,7 @@ class ItemController @Inject()(json4s: Json4s) extends Controller {
 
   def list() = Action {
     import models.Aliases.i
-    val items = Item.findAll(i.id :: Nil)
+    val items = Item.findAll(i.name :: Nil)
     Ok(Extraction.decompose(items))
   }
 

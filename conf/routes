@@ -1,6 +1,5 @@
 
 GET / controllers.Assets.at(path="/public", file = "index.html")
-GET /api/load_recipe controllers.MainController.loadRecipe()
 
 GET /api/recipes/versions controllers.RecipeController.versions()
 GET /api/recipe/:version/:itemId controllers.RecipeController.fromResult(version: String, itemId: Long)
