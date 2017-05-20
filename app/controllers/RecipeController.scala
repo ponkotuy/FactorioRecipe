@@ -1,6 +1,5 @@
 package controllers
 
-import java.util.zip.ZipFile
 import javax.inject.Inject
 
 import com.github.tototoshi.play2.json4s.native.Json4s
@@ -10,8 +9,6 @@ import parsers.RecipeParser
 import play.api.mvc.{Action, Controller}
 import requests.{DeleteForm, MyBCrypt, SearchRecipeForm, UploadZipRecipeForm}
 import scalikejdbc._
-
-import scala.collection.JavaConverters._
 
 class RecipeController @Inject()(json4s: Json4s) extends Controller {
   import Responses._

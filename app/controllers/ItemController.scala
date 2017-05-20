@@ -39,7 +39,7 @@ class ItemController @Inject()(json4s: Json4s) extends Controller {
           }
         }
       }
-      success
+      Redirect(routes.MyAssets.at("uploader.html"))
     }
   }
 }
