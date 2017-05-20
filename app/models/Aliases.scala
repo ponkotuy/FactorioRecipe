@@ -6,4 +6,5 @@ object Aliases {
   def in = Ingredient.defaultAlias
   def re = Result.defaultAlias
   def p = Password.defaultAlias
+  def id = ItemDetail.defaultAlias
 }

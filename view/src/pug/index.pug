@@ -9,6 +9,9 @@ html(lang=ja)
     .container(role=main)
       .jumbotron
         h1 FactorioRecipe
-      ul#items
-        li(v-for='item in items')
-          a(:href='"/recipe.html?id=" + item.id') {{ item.name }}
+      #items.row
+        .col-md-4.col-sm-6(v-for='(group, name) in items')
+          h4 {{ camelCase(name) }}
+          ul
+            li(v-for='item in group')
+              a(:href='"/recipe.html?id=" + item.id') {{ item.name }}

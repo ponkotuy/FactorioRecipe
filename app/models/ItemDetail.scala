@@ -21,5 +21,4 @@ object ItemDetail extends SkinnyCRUDMapperWithId[Long, ItemDetail] {
       sqls""""order"""" -> i.order,
       sqls"stack_size" -> i.stackSize
     )
-//    createWithAttributes('id -> i.id, 'subgroup -> i.subgroup, 'order -> i.order, 'stackSize -> i.stackSize)
 }
