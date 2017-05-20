@@ -7,7 +7,7 @@ html(lang=ja)
   body
     include template/_navbar
     .container(role=main)
-      h3 Uploader
+      h3 Recipe Uploader
       form(method='post', action='/api/recipes', enctype='multipart/form-data')
         .form-group
           label(for='version') Version
@@ -21,6 +21,17 @@ html(lang=ja)
             input.form-control(type='text', readonly='', placeholder='Browse...')
             input#zipFile(type='file', name='zipFile')
         button.btn.btn-default(type='submit') Submit
+
+      h3 Item Uploader
+      p ※Version管理が無いので最新版以外入れないでください
+      form(method='post', action='/api/items', enctype='multipart/form-data')
+        .form-group
+          label(for='itemZipFile') Zip File(with `Steam/steamapps/common/Factorio/data/base/prototypes/item` dir)
+          div
+            input.form-control(type='text', readonly='', placeholder='Browse...')
+            input#itemZipFile(type='file', name='zipFile')
+        button.btn.btn-default(type='submit') Submit
+
 
       h3 Delete Version
       #versions

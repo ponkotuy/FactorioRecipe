@@ -3,6 +3,8 @@ package models
 import scalikejdbc._
 
 class PersistRecipe(version: String) {
+  import PersistItem.getItemId
+
   def apply(recipe: parsers.Recipe)(implicit session: DBSession) = {
     val record = new models.Recipe(
       0L,
@@ -20,12 +22,5 @@ class PersistRecipe(version: String) {
       val itemId = getItemId(result.name)
       Result.create(Result(id, itemId, result.amount))
     }
-  }
-
-  // 存在しない場合はItem作ってIDを返す
-  def getItemId(name: String)(implicit session: DBSession): Long = {
-    import Aliases.i
-    Item.findBy(sqls.eq(i.name, name)).map(_.id)
-        .getOrElse(Item.create(name))
   }
 }

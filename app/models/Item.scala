@@ -20,3 +20,12 @@ object Item extends SkinnyCRUDMapperWithId[Long, Item] {
   def name(id: Long)(implicit session: DBSession = AutoSession): String =
     findById(id).map(_.name).get
 }
+
+object PersistItem {
+  // 存在しない場合はItem作ってIDを返す
+  def getItemId(name: String)(implicit session: DBSession): Long = {
+    import Aliases.i
+    Item.findBy(sqls.eq(i.name, name)).map(_.id)
+        .getOrElse(Item.create(name))
+  }
+}

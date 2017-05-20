@@ -32,9 +32,8 @@ class RecipeController @Inject()(json4s: Json4s) extends Controller {
 
   def upload() = Action(parse.multipartFormData) { implicit req =>
     UploadZipRecipeForm.fromReq(req).fold(BadRequest("Form error")) { form =>
-      val zip = new ZipFile(form.file.ref.file)
-      zip.entries().asScala.filterNot(_.isDirectory).foreach { file =>
-        val recipes = RecipeParser.parse(zip.getInputStream(file))
+      ZipUtil.inputStreams(form.file.ref.file).foreach { is =>
+        val recipes = RecipeParser.parse(is)
         val persist = new PersistRecipe(form.version)
         DB localTx { implicit session =>
           Password.create(form.passwordRecord)

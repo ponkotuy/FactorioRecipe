@@ -8,5 +8,6 @@ DELETE /api/recipes/:version controllers.RecipeController.deleteVersion(version:
 
 GET /api/item/:itemId controllers.ItemController.show(itemId: Long)
 GET /api/items controllers.ItemController.list()
+POST /api/items controllers.ItemController.upload()
 
 GET /*file controllers.MyAssets.at(path="/public", file)
