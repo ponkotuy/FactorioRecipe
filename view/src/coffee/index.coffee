@@ -13,4 +13,4 @@ render = (json) ->
         str.charAt(0).toUpperCase() + str.substring(1)
 
 groupItem = (items) ->
-  _.groupBy items, (item) -> item.detail?.subgroup ? 'water'
+  _.groupBy items, (item) -> item.detail?.subgroup ? 'fluid'
