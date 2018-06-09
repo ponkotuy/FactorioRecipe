@@ -1,7 +1,7 @@
 
 name := "FactorioRecipe"
 
-scalaVersion := "2.11.11"
+scalaVersion := "2.11.12"
 
 libraryDependencies ++= Seq(
   "org.luaj" % "luaj-jse" % "3.0.1",
