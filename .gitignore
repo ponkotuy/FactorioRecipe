@@ -156,4 +156,4 @@ typings/
 # End of https://www.gitignore.io/api/node,coffeescript
 
 # outputdir
-view/output
+public/

@@ -25,7 +25,8 @@ html(lang=ja)
           tbody
             tr(v-for='item in items', :class='{"info": item.id == itemId}')
               td {{ item.id }}
-              td {{ item.name }}
+              td
+                a(:href='"/recipe.html?id=" + item.id') {{ item.name }}
               td {{ (item.amount - item.exclude) * item.time }}
               td {{ item.amount - item.exclude }}
               td
