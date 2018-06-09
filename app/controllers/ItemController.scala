@@ -1,18 +1,17 @@
 package controllers
 
-import javax.inject.Inject
-
 import com.github.tototoshi.play2.json4s.native.Json4s
+import javax.inject.Inject
 import models.{Item, ItemDetail}
 import org.json4s.{DefaultFormats, Extraction}
 import parsers.ItemParser
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.InjectedController
 import requests.UploadZipItemForm
 import scalikejdbc.DB
 
-class ItemController @Inject()(json4s: Json4s) extends Controller {
-  import json4s._
+class ItemController @Inject()(json4s: Json4s) extends InjectedController {
   import Responses._
+  import json4s.implicits._
   import models.PersistItem.getItemId
   implicit val formats = DefaultFormats
 

@@ -1,18 +1,17 @@
 package controllers
 
 import javax.inject.Inject
-
 import com.github.tototoshi.play2.json4s.native.Json4s
 import models._
 import org.json4s.{DefaultFormats, Extraction}
 import parsers.RecipeParser
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, InjectedController}
 import requests.{DeleteForm, MyBCrypt, SearchRecipeForm, UploadZipRecipeForm}
 import scalikejdbc._
 
-class RecipeController @Inject()(json4s: Json4s) extends Controller {
+class RecipeController @Inject()(json4s: Json4s) extends InjectedController {
   import Responses._
-  import json4s._
+  import json4s.implicits._
   implicit val formats = DefaultFormats
 
   def fromResult(version: String, itemId: Long) = Action { implicit req =>
