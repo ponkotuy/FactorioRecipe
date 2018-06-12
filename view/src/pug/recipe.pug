@@ -7,14 +7,14 @@ html(lang=ja)
   body
     include template/_navbar
     .container(role=main)
-      h1#item {{ item.name }}
+      h1#item.display-2 {{ item.name }}
       #recipe
         form.form-inline
           .form-group
             label(for='version') Version
             select#version.form-control(v-model='version')
               option(v-for='version in versions') {{ version }}
-        table.table.table-condensed.table-striped
+        table.table.table-sm.table-striped
           thead
             tr
               th ID
@@ -32,7 +32,7 @@ html(lang=ja)
               td
                 button.btn.btn-default.btn-xs(type='button', v-if='item.id != itemId', @click='setDirect(item)') 直接搬入
         h3 原料
-        table.table.table-condensed.table-striped
+        table.table.table-sm.table-striped
           thead
             tr
               th ID

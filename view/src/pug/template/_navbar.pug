@@ -1,10 +1,9 @@
-.navbar.navbar-inverse
-  .container-fluid
-    .navbar-header
-      a.navbar-brand(href='/') FactorioRecipe
-    .navbar-collapse.collapse.navbar-responsive-collapse
-      ul#navs.nav.navbar-nav
-        li
-          a(href='/') Recipe
-        li
-          a(href='/uploader.html') Uploader
+nav.navbar.navbar-expand-lg.bg-primary
+  a.navbar-brand(href='/') FactorioRecipe
+  .navbar-collapse.collapse
+    ul#navs.navbar-nav
+      li.nav-item
+        a.nav-link(href='/') Recipe
+      li.nav-item
+        a.nav-link(href='/uploader.html') Uploader
+script $('nav a').each(function(e){ $(this).addClass('text-white') });

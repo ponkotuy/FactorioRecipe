@@ -8,7 +8,7 @@ html(lang=ja)
     include template/_navbar
     .container(role=main)
       .jumbotron
-        h1 FactorioRecipe
+        h1.display-2 FactorioRecipe
       #items.row
         .col-md-4.col-sm-6(v-for='(group, name) in items')
           h4 {{ camelCase(name) }}

@@ -27,7 +27,6 @@ render = (itemId, versions) ->
             json = json.map (x) ->
               x.direct = _.includes(directs, x.id)
               x
-            console.log(json.map (x) -> x.direct)
             group = _.groupBy(json, (x) -> x.time != 0 && !x.direct && x.amount != x.exclude)
             @items = group[true]
             @elems = group[false]
@@ -36,7 +35,6 @@ render = (itemId, versions) ->
         @getJson()
     mounted: ->
       @getJson()
-
 
 
 renderItem = (json) ->
